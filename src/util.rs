@@ -1,0 +1,24 @@
+use crate::error::*;
+
+pub fn get_num(lit: &str, labels: &std::collections::HashMap<&str, usize>)
+    -> Result<usize, Box<dyn std::error::Error>> {
+    let ch = lit.chars().collect::<Vec<char>>();
+    if ch[0].is_digit(10) {
+        if lit.len() > 2 && ch[0] == '0' && ch[1] != '0' {
+            let base = match ch[1] {
+                'x' => 16,
+                'o' => 8,
+                'b' => 2,
+                _ => return Err(Box::new(SyntaxError{line: 0}))
+            };
+            Ok(usize::from_str_radix(&lit[2..], base)?)
+        } else {
+            Ok(lit.parse()?)
+        }
+    } else {
+        match labels.get(lit) {
+            Some(val) => Ok(*val),
+            None => Err(Box::new(UndefinedLabel(lit.into())))
+        }
+    }
+}
