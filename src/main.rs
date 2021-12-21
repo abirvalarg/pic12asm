@@ -210,8 +210,8 @@ const OP_CODES: phf::Map<&'static str, &OpDecoder> = phf_map! {
         if k == None {
             Err(Box::new(BadOpArgs(l + 1)))
         } else {
-            let k = get_num(k.unwrap(), lbl)? as u8 & 0x1ff;
-            Ok([k & 0xff, 0b1010 | (k >> 8)])
+            let k = get_num(k.unwrap(), lbl)? as u16 & 0x1ff;
+            Ok([(k & 0xff) as u8, (0b1010 | (k >> 8)) as u8])
         }
     }),
     "IORLW" => &(|lbl, k, _, l| {
