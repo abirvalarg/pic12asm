@@ -20,8 +20,14 @@ You can use all instructions from the datasheet. Labels can be defined by adding
 
 At this point you can only compile 1 file. Hopefully, it won't be a big problem because of limited resources of the platform.
 
-There's 1 additional preudo-instruction `DATA k`. Corresponding word in ROM will be set to the number `k`.
+### Pseudo-instructions
+#### `DATA`
+The `DATA k` pseudo-instruction is replaced by value `k`, made for instrrupt vector.
 
+#### `BANK`
+This instruction tells assembler to fill current bank with `NOP`s and go to the next bank of ROM.
+
+### Build
 to build a file use following comand:
 ```bash
 pic12asm input.asm output.bin

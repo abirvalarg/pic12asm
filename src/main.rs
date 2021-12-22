@@ -29,22 +29,27 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
     for (line_num, line) in input.lines().enumerate() {
         let line = line.split(';').next().unwrap();
         let content = line.split(':').collect::<Vec<&str>>();
-        match content.len() {
-            1 => {
-                let instr = content[0].trim();
-                if !instr.is_empty() {
-                    instrs.push((line_num, instr));
+        if content[0].trim() == "BANK" {
+            let num_banks = instrs.len() / 512;
+            instrs.resize((num_banks + 1) * 512, (0, "NOP"));
+        } else {
+            match content.len() {
+                1 => {
+                    let instr = content[0].trim();
+                    if !instr.is_empty() {
+                        instrs.push((line_num, instr));
+                    }
                 }
-            }
-            2 => {
-                let label = content[0].trim();
-                let instr = content[1].trim();
-                symbols.insert(label, instrs.len());
-                if !instr.is_empty() {
-                    instrs.push((line_num, instr));
+                2 => {
+                    let label = content[0].trim();
+                    let instr = content[1].trim();
+                    symbols.insert(label, instrs.len());
+                    if !instr.is_empty() {
+                        instrs.push((line_num, instr));
+                    }
                 }
+                _ => return Err(Box::new(error::SyntaxError {line: line_num + 1}))
             }
-            _ => return Err(Box::new(error::SyntaxError {line: line_num + 1}))
         }
     }
 
@@ -54,20 +59,15 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
         match instr_re.captures(instr) {
             Some(cap) => {
                 let instr = cap.name("op").unwrap().as_str().to_uppercase();
-                if instr == "BANK" {
-                    let num_banks = output.len() / 1024;
-                    output.resize((num_banks + 1) * 1024, 0);
-                } else {
-                    let decoder = match OP_CODES.get(&instr) {
-                        Some(d) => d,
-                        None => return Err(Box::new(InvalidInstruction(instr, *line_num)))
-                    };
-                    let arg1 = cap.name("arg1").map(|m| m.as_str());
-                    let arg2 = cap.name("arg2").map(|m| m.as_str());
-                    let op_code: [u8; 2] = decoder(&symbols, arg1, arg2, *line_num)?;
-                    output.push(op_code[0]);
-                    output.push(op_code[1]);
-                }
+                let decoder = match OP_CODES.get(&instr) {
+                    Some(d) => d,
+                    None => return Err(Box::new(InvalidInstruction(instr, *line_num)))
+                };
+                let arg1 = cap.name("arg1").map(|m| m.as_str());
+                let arg2 = cap.name("arg2").map(|m| m.as_str());
+                let op_code: [u8; 2] = decoder(&symbols, arg1, arg2, *line_num)?;
+                output.push(op_code[0]);
+                output.push(op_code[1]);
             }
             None => return Err(Box::new(SyntaxError{line: line_num + 1}))
         }
