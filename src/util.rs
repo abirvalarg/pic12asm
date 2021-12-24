@@ -1,3 +1,4 @@
+use phf::phf_map;
 use crate::error::*;
 
 pub fn get_num(lit: &str, labels: &std::collections::HashMap<&str, usize>)
@@ -15,6 +16,8 @@ pub fn get_num(lit: &str, labels: &std::collections::HashMap<&str, usize>)
         } else {
             Ok(lit.parse()?)
         }
+    } else if let Some(val) = REGS.get(lit) {
+        Ok(*val)
     } else {
         match labels.get(lit) {
             Some(val) => Ok(*val),
@@ -22,3 +25,13 @@ pub fn get_num(lit: &str, labels: &std::collections::HashMap<&str, usize>)
         }
     }
 }
+
+pub static REGS: phf::Map<&'static str, usize> = phf_map! {
+    "INDF" => 0,
+    "TMR0" => 1,
+    "PCL" => 2,
+    "STATUS" => 3,
+    "FSR" => 4,
+    "OSCCAL" => 5,
+    "GPIO" => 6
+};
