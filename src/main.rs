@@ -26,12 +26,13 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string(args.input)?;
     let mut instrs = Vec::new();
     let mut symbols = HashMap::new();
+    let mut num_banks = 0;
     for (line_num, line) in input.lines().enumerate() {
         let line = line.split(';').next().unwrap();
         let content = line.split(':').collect::<Vec<&str>>();
-        if content[0].trim() == "BANK" {
-            let num_banks = instrs.len() / 512;
-            instrs.resize((num_banks + 1) * 512, (0, "NOP"));
+        if content[0].trim().to_uppercase() == "BANK" {
+            num_banks += 1;
+            instrs.resize(num_banks * 512, (0, "NOP"));
         } else {
             match content.len() {
                 1 => {
@@ -50,6 +51,9 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
                 }
                 _ => return Err(Box::new(error::SyntaxError {line: line_num + 1}))
             }
+            if instrs.len() / 512 != num_banks {
+                return Err(Box::new(DoesnotFit(line_num + 1)));
+            }
         }
     }
 
@@ -61,7 +65,7 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
                 let instr = cap.name("op").unwrap().as_str().to_uppercase();
                 let decoder = match OP_CODES.get(&instr) {
                     Some(d) => d,
-                    None => return Err(Box::new(InvalidInstruction(instr, *line_num)))
+                    None => return Err(Box::new(InvalidInstruction(instr, *line_num + 1)))
                 };
                 let arg1 = cap.name("arg1").map(|m| m.as_str());
                 let arg2 = cap.name("arg2").map(|m| m.as_str());

@@ -52,3 +52,12 @@ impl fmt::Display for BadOpArgs {
     }
 }
 impl Error for BadOpArgs {}
+
+#[derive(Debug)]
+pub struct DoesnotFit(pub usize);
+impl fmt::Display for DoesnotFit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Instruction on line {} doesn't fit in memory bank", self.0)
+    }
+}
+impl Error for DoesnotFit {}

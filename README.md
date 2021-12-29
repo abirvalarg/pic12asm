@@ -25,7 +25,7 @@ At this point you can only compile 1 file. Hopefully, it won't be a big problem 
 The `DATA k` pseudo-instruction is replaced by value `k`, made for instrrupt vector.
 
 #### `BANK`
-This instruction tells assembler to fill current bank with `NOP`s and go to the next bank of ROM.
+This instruction tells assembler to fill current bank with `NOP`s and go to the next bank of ROM. Attempt to go to next bank without this instruction will cause an error.
 
 ### Build
 to build a file use following comand:
@@ -62,4 +62,4 @@ isSet:
 - Tested only with PIC12F509
 - Register names don't work yet, will be fixed in future versions
 - Destination select is always required if supported by instruction
-- Assembler doesn't check for incorrect values
+- Assembler doesn't check for all incorrect values
