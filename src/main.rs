@@ -58,7 +58,7 @@ fn run(args: args::Args) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let mut output = Vec::new();
-    let instr_re= Regex::new(r"(?x)(?P<op>[[:alpha:]]+) (?:\s+(?P<arg1>[[:alpha:][0-9]_]+)(?:\s*,\s*(?P<arg2>[0-9]+))?)?").unwrap();
+    let instr_re= Regex::new(r"(?x)(?P<op>[[:alpha:]]+) (?:\s+(?P<arg1>([[:alpha:][0-9]_]+|'.'))(?:\s*,\s*(?P<arg2>[0-9]+))?)?").unwrap();
     for (line_num, instr) in instrs.iter() {
         match instr_re.captures(instr) {
             Some(cap) => {
