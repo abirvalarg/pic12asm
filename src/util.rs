@@ -36,6 +36,6 @@ pub static REGS: phf::Map<&'static str, usize> = phf_map! {
     "FSR" => 4,
     "OSCCAL" => 5,
     "GPIO" => 6,
-    "GPIOB" => 6,
-    "GOIPC" => 7
+    "PORTB" => 6,
+    "PORTC" => 7
 };
